@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        Toast.makeText(MainActivity.this, "¡Alerta mostrada con Toast!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "Tarea Activa", Toast.LENGTH_SHORT).show();
 
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
