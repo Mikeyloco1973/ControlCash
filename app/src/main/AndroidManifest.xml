@@ -12,6 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ControlCash">
         <activity
+            android:name=".EditarCompraActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ComprasActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AgregarCompraActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
