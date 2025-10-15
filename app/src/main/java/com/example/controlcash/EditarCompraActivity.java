@@ -1,8 +1,11 @@
 package com.example.controlcash;
 
+import android.Manifest;
 import android.content.ContentValues;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,6 +14,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class EditarCompraActivity extends AppCompatActivity {
 
@@ -20,6 +32,11 @@ public class EditarCompraActivity extends AppCompatActivity {
     private Button btnCalcular, btnActualizar;
     private SQLite dbHelper;
     private int compraId;
+
+    private GoogleMap mMap;
+    private LatLng ubicacionCompra;
+    private FusedLocationProviderClient fusedLocationClient;
+    private static final int LOCATION_PERMISSION_REQUEST = 1002;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +55,7 @@ public class EditarCompraActivity extends AppCompatActivity {
 
         dbHelper = new SQLite(this);
         compraId = getIntent().getIntExtra("id", -1);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         cargarCompra();
 
@@ -47,6 +65,20 @@ public class EditarCompraActivity extends AppCompatActivity {
 
         btnCalcular.setOnClickListener(v -> calcularCompra());
         btnActualizar.setOnClickListener(v -> actualizarCompra());
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.mapFragment);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(googleMap -> {
+                mMap = googleMap;
+                mostrarUbicacionEnMapa();
+                mMap.setOnMapClickListener(latLng -> {
+                    mMap.clear();
+                    mMap.addMarker(new MarkerOptions().position(latLng).title("Ubicación editada"));
+                    ubicacionCompra = latLng;
+                });
+            });
+        }
     }
 
     private void cargarCompra() {
@@ -62,8 +94,51 @@ public class EditarCompraActivity extends AppCompatActivity {
                 etDescuento.setVisibility(android.view.View.VISIBLE);
                 etDescuento.setText(String.valueOf(descuento));
             }
+
+            double lat = cursor.getDouble(cursor.getColumnIndexOrThrow(SQLite.COLUMN_LATITUD));
+            double lng = cursor.getDouble(cursor.getColumnIndexOrThrow(SQLite.COLUMN_LONGITUD));
+            ubicacionCompra = new LatLng(lat, lng);
         }
         cursor.close();
+    }
+
+    private void mostrarUbicacionEnMapa() {
+        if (ubicacionCompra != null && mMap != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ubicacionCompra, 15));
+            mMap.addMarker(new MarkerOptions().position(ubicacionCompra).title("Ubicación guardada"));
+        } else {
+            obtenerUbicacionActual();
+        }
+    }
+
+    private void obtenerUbicacionActual() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST);
+            return;
+        }
+
+        mMap.setMyLocationEnabled(true);
+        fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+            if (location != null) {
+                LatLng actual = new LatLng(location.getLatitude(), location.getLongitude());
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(actual, 15));
+                mMap.addMarker(new MarkerOptions().position(actual).title("Ubicación actual"));
+                ubicacionCompra = actual;
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST &&
+                grantResults.length > 0 &&
+                grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            obtenerUbicacionActual();
+        }
     }
 
     private void calcularCompra() {
@@ -107,6 +182,11 @@ public class EditarCompraActivity extends AppCompatActivity {
             return;
         }
 
+        if (ubicacionCompra == null) {
+            Toast.makeText(this, "Selecciona una ubicación en el mapa", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         double precio = Double.parseDouble(precioStr);
         int cantidad = Integer.parseInt(cantidadStr);
         double subtotal = precio * cantidad;
@@ -120,6 +200,8 @@ public class EditarCompraActivity extends AppCompatActivity {
         }
 
         double total = subtotal * (1 - descuento / 100);
+        double latitud = ubicacionCompra.latitude;
+        double longitud = ubicacionCompra.longitude;
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -129,6 +211,8 @@ public class EditarCompraActivity extends AppCompatActivity {
         values.put(SQLite.COLUMN_SUBTOTAL, subtotal);
         values.put(SQLite.COLUMN_DESCUENTO, descuento);
         values.put(SQLite.COLUMN_TOTAL, total);
+        values.put(SQLite.COLUMN_LATITUD, latitud);
+        values.put(SQLite.COLUMN_LONGITUD, longitud);
 
         int result = db.update(SQLite.TABLE_COMPRAS, values, "id = ?", new String[]{String.valueOf(compraId)});
         if (result > 0) {

@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SQLite extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "compras.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2; // ¡Actualizado para reflejar el cambio de esquema!
 
     public static final String TABLE_COMPRAS = "compras";
     public static final String COLUMN_ID = "id";
@@ -18,6 +18,8 @@ public class SQLite extends SQLiteOpenHelper {
     public static final String COLUMN_SUBTOTAL = "subtotal";
     public static final String COLUMN_DESCUENTO = "descuento";
     public static final String COLUMN_TOTAL = "total";
+    public static final String COLUMN_LATITUD = "latitud";
+    public static final String COLUMN_LONGITUD = "longitud";
 
     public SQLite(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -32,17 +34,20 @@ public class SQLite extends SQLiteOpenHelper {
                 COLUMN_CANTIDAD + " INTEGER, " +
                 COLUMN_SUBTOTAL + " REAL, " +
                 COLUMN_DESCUENTO + " REAL, " +
-                COLUMN_TOTAL + " REAL)";
+                COLUMN_TOTAL + " REAL, " +
+                COLUMN_LATITUD + " REAL, " +
+                COLUMN_LONGITUD + " REAL)";
         db.execSQL(CREATE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // Si ya tienes datos y quieres conservarlos, deberías migrarlos.
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_COMPRAS);
         onCreate(db);
     }
 
-    public boolean insertarCompra(String nombre, double precio, int cantidad, double subtotal, double descuento, double total) {
+    public boolean insertarCompra(String nombre, double precio, int cantidad, double subtotal, double descuento, double total, double latitud, double longitud) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_NOMBRE, nombre);
@@ -51,6 +56,8 @@ public class SQLite extends SQLiteOpenHelper {
         values.put(COLUMN_SUBTOTAL, subtotal);
         values.put(COLUMN_DESCUENTO, descuento);
         values.put(COLUMN_TOTAL, total);
+        values.put(COLUMN_LATITUD, latitud);
+        values.put(COLUMN_LONGITUD, longitud);
 
         long resultado = db.insert(TABLE_COMPRAS, null, values);
         return resultado != -1;
