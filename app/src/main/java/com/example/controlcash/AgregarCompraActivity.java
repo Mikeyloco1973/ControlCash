@@ -171,7 +171,15 @@ public class AgregarCompraActivity extends AppCompatActivity {
         double latitud = ubicacionCompra.latitude;
         double longitud = ubicacionCompra.longitude;
 
-        boolean insertado = dbHelper.insertarCompra(nombre, precio, cantidad, subtotal, descuento, total, latitud, longitud);
+        // ✅ Obtener usuario logueado
+        String usuario = getSharedPreferences("sesion", MODE_PRIVATE).getString("usuario", null);
+        if (usuario == null) {
+            Toast.makeText(this, "Sesión no válida. Inicia sesión nuevamente.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // ✅ Guardar compra asociada al usuario
+        boolean insertado = dbHelper.insertarCompra(nombre, precio, cantidad, subtotal, descuento, total, latitud, longitud, usuario);
 
         if (insertado) {
             Toast.makeText(this, "Compra guardada", Toast.LENGTH_SHORT).show();
