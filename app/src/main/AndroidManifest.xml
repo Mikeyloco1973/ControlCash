@@ -14,11 +14,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ControlCash">
+        <activity
+            android:name=".RegistrarseActivity"
+            android:exported="false" />
+        <activity
+            android:name=".IniciarSesionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ListaComprasActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyC9q5MRFHZoFx8oSGKSp2yUTHJlzXv9Gpc"
-            />
+            android:value="AIzaSyC9q5MRFHZoFx8oSGKSp2yUTHJlzXv9Gpc" />
 
         <activity
             android:name=".EditarCompraActivity"

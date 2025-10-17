@@ -7,6 +7,7 @@
     android:padding="8dp"
     android:background="?android:attr/selectableItemBackground">
 
+    <!-- Nombre del producto -->
     <TextView
         android:id="@+id/tvNombre"
         android:layout_width="0dp"
@@ -16,10 +17,24 @@
         android:gravity="start"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tvPrecio"
         app:layout_constraintHorizontal_weight="1" />
 
+    <!-- Usuario logueado -->
+    <TextView
+        android:id="@+id/tvUsuarioCompra"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Usuario: "
+        android:textSize="12sp"
+        android:textColor="@android:color/darker_gray"
+        android:gravity="start"
+        app:layout_constraintStart_toStartOf="@id/tvNombre"
+        app:layout_constraintTop_toBottomOf="@id/tvNombre"
+        app:layout_constraintEnd_toStartOf="@+id/tvPrecio"
+        app:layout_constraintHorizontal_weight="1" />
+
+    <!-- Precio -->
     <TextView
         android:id="@+id/tvPrecio"
         android:layout_width="0dp"
@@ -29,10 +44,10 @@
         android:gravity="center"
         app:layout_constraintStart_toEndOf="@+id/tvNombre"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tvCantidad"
         app:layout_constraintHorizontal_weight="1" />
 
+    <!-- Cantidad -->
     <TextView
         android:id="@+id/tvCantidad"
         android:layout_width="0dp"
@@ -42,10 +57,10 @@
         android:gravity="center"
         app:layout_constraintStart_toEndOf="@+id/tvPrecio"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tvDescuento"
         app:layout_constraintHorizontal_weight="1" />
 
+    <!-- Descuento -->
     <TextView
         android:id="@+id/tvDescuento"
         android:layout_width="0dp"
@@ -55,10 +70,10 @@
         android:gravity="center"
         app:layout_constraintStart_toEndOf="@+id/tvCantidad"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tvTotal"
         app:layout_constraintHorizontal_weight="1" />
 
+    <!-- Total -->
     <TextView
         android:id="@+id/tvTotal"
         android:layout_width="0dp"
@@ -69,7 +84,6 @@
         android:gravity="end"
         app:layout_constraintStart_toEndOf="@+id/tvDescuento"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_weight="1" />
 </androidx.constraintlayout.widget.ConstraintLayout>

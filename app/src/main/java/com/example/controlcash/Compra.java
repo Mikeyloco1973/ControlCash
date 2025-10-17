@@ -8,8 +8,9 @@ public class Compra {
     public double subtotal;
     public double descuento;
     public double total;
+    public String usuario;
 
-    public Compra(int id, String nombre, double precio, int cantidad, double subtotal, double descuento, double total) {
+    public Compra(int id, String nombre, double precio, int cantidad, double subtotal, double descuento, double total, String usuarioCompra) {
         this.id = id;
         this.nombre = nombre;
         this.precio = precio;
@@ -17,5 +18,6 @@ public class Compra {
         this.subtotal = subtotal;
         this.descuento = descuento;
         this.total = total;
+        this.usuario = usuarioCompra;
     }
 }

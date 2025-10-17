@@ -32,6 +32,7 @@ public class EditarCompraActivity extends AppCompatActivity {
     private Button btnCalcular, btnActualizar;
     private SQLite dbHelper;
     private int compraId;
+    private String usuario;
 
     private GoogleMap mMap;
     private LatLng ubicacionCompra;
@@ -55,7 +56,14 @@ public class EditarCompraActivity extends AppCompatActivity {
 
         dbHelper = new SQLite(this);
         compraId = getIntent().getIntExtra("id", -1);
+        usuario = getSharedPreferences("sesion", MODE_PRIVATE).getString("usuario", null);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        if (usuario == null) {
+            Toast.makeText(this, "Sesión no válida", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         cargarCompra();
 
@@ -83,7 +91,11 @@ public class EditarCompraActivity extends AppCompatActivity {
 
     private void cargarCompra() {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + SQLite.TABLE_COMPRAS + " WHERE id = ?", new String[]{String.valueOf(compraId)});
+        Cursor cursor = db.rawQuery(
+                "SELECT * FROM " + SQLite.TABLE_COMPRAS + " WHERE id = ? AND usuario = ?",
+                new String[]{String.valueOf(compraId), usuario}
+        );
+
         if (cursor.moveToFirst()) {
             etNombre.setText(cursor.getString(cursor.getColumnIndexOrThrow(SQLite.COLUMN_NOMBRE)));
             etPrecio.setText(String.valueOf(cursor.getDouble(cursor.getColumnIndexOrThrow(SQLite.COLUMN_PRECIO))));
@@ -98,7 +110,11 @@ public class EditarCompraActivity extends AppCompatActivity {
             double lat = cursor.getDouble(cursor.getColumnIndexOrThrow(SQLite.COLUMN_LATITUD));
             double lng = cursor.getDouble(cursor.getColumnIndexOrThrow(SQLite.COLUMN_LONGITUD));
             ubicacionCompra = new LatLng(lat, lng);
+        } else {
+            Toast.makeText(this, "Compra no encontrada o no pertenece a tu usuario", Toast.LENGTH_SHORT).show();
+            finish();
         }
+
         cursor.close();
     }
 
@@ -214,12 +230,18 @@ public class EditarCompraActivity extends AppCompatActivity {
         values.put(SQLite.COLUMN_LATITUD, latitud);
         values.put(SQLite.COLUMN_LONGITUD, longitud);
 
-        int result = db.update(SQLite.TABLE_COMPRAS, values, "id = ?", new String[]{String.valueOf(compraId)});
+        int result = db.update(
+                SQLite.TABLE_COMPRAS,
+                values,
+                "id = ? AND usuario = ?",
+                new String[]{String.valueOf(compraId), usuario}
+        );
+
         if (result > 0) {
             Toast.makeText(this, "Compra actualizada", Toast.LENGTH_SHORT).show();
             finish();
         } else {
-            Toast.makeText(this, "Error al actualizar", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error al actualizar o no tienes permiso", Toast.LENGTH_SHORT).show();
         }
     }
 }
