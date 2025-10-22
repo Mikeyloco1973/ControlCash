@@ -94,11 +94,13 @@ public class ListaComprasActivity extends AppCompatActivity {
             double tot = cursor.getDouble(cursor.getColumnIndexOrThrow(SQLite.COLUMN_TOTAL));
             String usuarioCompra = cursor.getString(cursor.getColumnIndexOrThrow(SQLite.COLUMN_USUARIO));
 
-            subtotal += sub;
-            total += tot;
-            ahorros += (sub - tot);
-
             listaCompras.add(new Compra(id, nombre, precio, cantidad, sub, desc, tot, usuarioCompra));
+
+            if (usuarioCompra != null && usuarioCompra.equals(usuario)) {
+                subtotal += sub;
+                total += tot;
+                ahorros += (sub - tot);
+            }
         }
 
         cursor.close();
@@ -106,9 +108,9 @@ public class ListaComprasActivity extends AppCompatActivity {
         adapter = new CompraAdapter(listaCompras, this::eliminarCompra, this::editarCompra, usuario);
         recyclerCompras.setAdapter(adapter);
 
-        tvSubtotal.setText("Subtotal de compras: $" + String.format("%.2f", subtotal));
-        tvTotal.setText("Total de compras: $" + String.format("%.2f", total));
-        tvAhorros.setText("Ahorros: $" + String.format("%.2f", ahorros));
+        tvSubtotal.setText("Subtotal de tus compras: $" + String.format("%.2f", subtotal));
+        tvTotal.setText("Total de tus compras: $" + String.format("%.2f", total));
+        tvAhorros.setText("Tus ahorros: $" + String.format("%.2f", ahorros));
 
         configurarSwipeParaEliminar();
     }
